@@ -1,0 +1,26 @@
+# wandb sweep configuration
+program: train.py
+method: grid
+metric:
+  goal: minimize
+  name: test.psnr
+parameters:
+  scene:
+    values: ["nerf_synthetic/chair", "nerf_synthetic/drums", "nerf_synthetic/ficus", "nerf_synthetic/hotdog", "nerf_synthetic/lego", "nerf_synthetic/materials", "nerf_synthetic/mic", "nerf_synthetic/ship", "mipnerf360/bicycle", "mipnerf360/bonsai", "mipnerf360/counter", "mipnerf360/flowers", "mipnerf360/garden", "mipnerf360/kitchen", "mipnerf360/room", "mipnerf360/stump", "mipnerf360/treehill", "db/drjohnson", "db/playroom", "tandt/train", "tandt/truck"]
+  prune_method:
+    value: safeguard_gs
+  prune_iterations:
+    value: [20000]
+  safeguard_gs_score_function:
+    values: [0x104]
+  safeguard_gs_purne_topk:
+    values: [1, 100]
+command:
+- ${env}
+- python
+- ${program}
+- "-s"
+- "./data/"
+- "-m"
+- "output/benchmark/safeguard_gs/"
+- "--eval"
