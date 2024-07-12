@@ -896,20 +896,22 @@ void FORWARD::mw_score_gaussian(
 		max_weight_score);
 }
 
-// function ids:
-//  0x00. score = 1
-// 	0x01. score = opacity
-// 	0x02. score = alpha
-// 	0x03. score = opacity * transmittance
-// 	0x04. score = alpha * transmittance (EfficientGS)
-// 	0x05. score = dist error
-//  0x06. score = dist error * opacity
-// 	0x07. score = dist error * alpha
-// 	0x08. score = dist error * opacity * transmittance
-// 	0x09. score = dist error * alpha * transmittance
-// 	0x1z. score *= color error (Cosine similarity)
-// 	0x2z. score *= color error (Manhattan distance)
-// 	0x3z. score *= exp color error (Manhattan distance)
+// Function IDs are defined using bitmasking. For example, `safeguard_gs_score_function=0x24`, which is SafeguardGS' choice, outputs `L1_color_error * alpha * transmittance`.
+// First 2 bytes:
+//   0x00. score = 1
+//   0x01. score = opacity
+//   0x02. score = alpha
+//   0x03. score = opacity * transmittance
+//   0x04. score = alpha * transmittance
+//   0x05. score = dist error
+//   0x06. score = dist error * opacity
+//   0x07. score = dist error * alpha
+//   0x08. score = dist error * opacity * transmittance
+//   0x09. score = dist error * alpha * transmittance
+// Last 2 bytes:
+//   0x10. score = color error (Cosine similarity)
+//   0x20. score = color error (Manhattan distance)
+//   0x30. score = exp color error (Manhattan distance)
 // Output: score of [0, 1] for a Gaussian primitive with respect to a ray
 template<uint32_t C>
 __device__ float compute_score(
@@ -969,12 +971,12 @@ __device__ float compute_score(
 		case 0x20:
 			for (int ch = 0; ch < C; ch++)
 				color_dist_err += abs(gt_color[ch] - prim_color[ch]);
-			activated_color_dist_err = 1- color_dist_err/2;
+			activated_color_dist_err = 1 - color_dist_err / C;
 			return score * activated_color_dist_err;
 		case 0x30:
 			for (int ch = 0; ch < C; ch++)
 				color_dist_err += abs(gt_color[ch] - prim_color[ch]);
-			activated_color_dist_err = exp(-1.0f * c_dist_activation_coef * color_dist_err / 2);
+			activated_color_dist_err = exp(-1.0f * c_dist_activation_coef * color_dist_err / C);
 			return score * activated_color_dist_err;
 	}
 }

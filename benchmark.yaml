@@ -12,9 +12,9 @@ parameters:
   prune_iterations:
     value: [20000]
   safeguard_gs_score_function:
-    values: [0x104]
+    value: 0x24
   safeguard_gs_purne_topk:
-    values: [1, 100]
+    value: 1
 command:
 - ${env}
 - python
@@ -22,5 +22,5 @@ command:
 - "-s"
 - "./data/"
 - "-m"
-- "output/benchmark/safeguard_gs/"
+- "output/benchmark/"
 - "--eval"

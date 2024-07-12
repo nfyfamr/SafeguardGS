@@ -220,6 +220,9 @@ if __name__ == "__main__":
     parser.add_argument("--quiet", action="store_true")
     parser.add_argument("--checkpoint_iterations", nargs="+", type=int, default=[])
     parser.add_argument("--start_checkpoint", type=str, default = None)
+    # For rendering
+    parser.add_argument("--skip_train", action="store_true")
+    parser.add_argument("--skip_test", action="store_true")
     args = parser.parse_args(sys.argv[1:])
     args.save_iterations.append(args.iterations)
 
@@ -227,8 +230,7 @@ if __name__ == "__main__":
     iter_end = args.iterations
     wandb.define_metric("train/memory_(GiB)", summary="max")
     if run.sweep_id:
-        # args.model_path += f"{wandb.config.prune_method}/{wandb.config.scene}"
-        args.model_path += f"{wandb.config.prune_method}/{wandb.config.prune_iterations[0]}/func_{wandb.config.safeguard_gs_score_function}/{wandb.config.safeguard_gs_purne_topk}/{wandb.config.scene}"
+        args.model_path += f"{wandb.config.prune_method}/{wandb.config.scene}"
         args.source_path += wandb.config.scene
         if getattr(wandb.config, 'prune_iterations', None): setattr(args, f'{wandb.config.prune_method}_prune_iterations', wandb.config.prune_iterations)
         if getattr(wandb.config, 'prune_method', None): args.prune_method = wandb.config.prune_method
@@ -281,16 +283,10 @@ if __name__ == "__main__":
 
     # All done
     print("\nTraining complete.")
-    ####
-    wandb.log({})
-    exit(0)
-    ####
 
     ########## render.py ##########
     args_r = deepcopy(args)
     args_r.iteration = -1
-    args_r.skip_train = False
-    args_r.skip_test = False
 
     print("Rendering " + args_r.model_path)
     
@@ -311,9 +307,9 @@ if __name__ == "__main__":
     
     wandb.log({
         "train/training_duration": training_duration,
-        "train/fps": fps['train'],
-        "test/fps": fps['test'],
-        "test/ssim": full_dict[args_e.model_path]['ours_30000']['SSIM'],
-        "test/psnr": full_dict[args_e.model_path]['ours_30000']['PSNR'],
-        "test/lpips": full_dict[args_e.model_path]['ours_30000']['LPIPS'],
+        "train/fps": fps.get('train', None),
+        "test/fps": fps.get('test', None),
+        "test/ssim": full_dict[args_e.model_path][f'ours_{args.iterations}']['SSIM'],
+        "test/psnr": full_dict[args_e.model_path][f'ours_{args.iterations}']['PSNR'],
+        "test/lpips": full_dict[args_e.model_path][f'ours_{args.iterations}']['LPIPS'],
     }, commit=True)

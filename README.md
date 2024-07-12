@@ -99,13 +99,13 @@ Each pruning method has specific arguments, see [arguments/\_\_init__.py](argume
   --safeguard_gs_purne_topk 10
   --safeguard_gs_prune_iterations 15000
   --safeguard_gs_score_function 0x01
-  # Function IDs are defined using bitmasking. For example, `safeguard_gs_score_function=0x38` outputs `exp_color_error * dist_error * opacity * transmittance`.
+  # Function IDs are defined using bitmasking. For example, `safeguard_gs_score_function=0x24`, which is SafeguardGS' choice, outputs `L1_color_error * alpha * transmittance`.
   # First 2 bytes:
   #   0x00. score = 1
   #   0x01. score = opacity
   #   0x02. score = alpha
   #   0x03. score = opacity * transmittance
-  #   0x04. score = alpha * transmittance (EfficientGS)
+  #   0x04. score = alpha * transmittance
   #   0x05. score = dist error
   #   0x06. score = dist error * opacity
   #   0x07. score = dist error * alpha
