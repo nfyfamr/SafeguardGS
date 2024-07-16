@@ -105,7 +105,7 @@ class OptimizationParams(ParamGroup):
         self.compact_3dgs_lambda_mask = 0.0005
         self.compact_3dgs_prune_iter = 1_000
         ### light_gaussian
-        self.light_gaussian_prune_iterations = [20_000]
+        self.light_gaussian_prune_iterations = [16_000, 24_000]
         self.light_gaussian_prune_percent = 0.6
         self.light_gaussian_prune_decay = 0.6
         self.light_gaussian_v_pow = 0.1
@@ -113,7 +113,7 @@ class OptimizationParams(ParamGroup):
         self.random_prune_iterations = [15_000]
         self.random_prune_ratio = 0.1
         ### mini_splatting
-        self.mini_splatting_prune_iterations = [15_000]
+        self.mini_splatting_prune_iterations = [15_000, 20_000]
         self.mini_splatting_preserving_ratio = 0.1
         self.mini_splatting_deterministic_prune = True # if False, use important score as probability distribution for sampling as the Mini-Splatting paper.
         ### rad_splat
