@@ -14,22 +14,8 @@ import gc
 class Compact_3DGS(GaussianModel):
 
     def __init__(self, sh_degree : int):
-        self.active_sh_degree = 0
-        self.max_sh_degree = sh_degree  
-        self._xyz = torch.empty(0)
-        self._features_dc = torch.empty(0)
-        self._features_rest = torch.empty(0)
-        self._scaling = torch.empty(0)
-        self._rotation = torch.empty(0)
-        self._opacity = torch.empty(0)
         self._mask = torch.empty(0)
-        self.max_radii2D = torch.empty(0)
-        self.xyz_gradient_accum = torch.empty(0)
-        self.denom = torch.empty(0)
-        self.optimizer = None
-        self.percent_dense = 0
-        self.spatial_lr_scale = 0
-        self.setup_functions()
+        super().__init__(sh_degree)
 
     def create_from_pcd(self, pcd : BasicPointCloud, spatial_lr_scale : float):
         self.spatial_lr_scale = spatial_lr_scale
@@ -166,7 +152,7 @@ class Compact_3DGS(GaussianModel):
         self.densify_and_clone(grads, max_grad, extent)
         self.densify_and_split(grads, max_grad, extent)
 
-        prune_mask = torch.logical_or((torch.sigmoid(self._mask) <= 0.01).squeeze(),(self.get_opacity < min_opacity).squeeze())
+        prune_mask = torch.logical_or((torch.sigmoid(self._mask) <= 0.01).squeeze(), (self.get_opacity < min_opacity).squeeze())
         if max_screen_size:
             big_points_vs = self.max_radii2D > max_screen_size
             big_points_ws = self.get_scaling.max(dim=1).values > 0.1 * extent
@@ -184,7 +170,8 @@ class Compact_3DGS(GaussianModel):
     
     def prune_before_densify(self, opt, iteration):
         if iteration == opt.iterations:
-            self.mask_prune()        
+            self.mask_prune()
+            # Unlike the Compact 3DGS paper, we don't reduce floating point precision because what we want to see is how well the method reduce Gaussian premitives.
             
             torch.cuda.empty_cache()
             gc.collect()
