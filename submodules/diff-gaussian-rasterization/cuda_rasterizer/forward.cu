@@ -617,6 +617,8 @@ renderCUDA_bw_score(
 	uint32_t* __restrict__ n_contrib,
 	const float* __restrict__ bg_color,
 	float* __restrict__ out_color,
+	int* __restrict__ gaussians_count,
+	int* __restrict__ accum_max_count,
 	float* __restrict__ blending_weight_score)
 {
 	// Identify current tile and associated min/max pixel range.
@@ -648,6 +650,10 @@ renderCUDA_bw_score(
 	uint32_t contributor = 0;
 	uint32_t last_contributor = 0;
 	float C[CHANNELS] = { 0 };
+
+	float weight_max=0;
+	int idx_max = 0;
+	int flag_update = 0;
 
 	// Iterate over batches until all done or range is complete
 	for (int i = 0; i < rounds; i++, toDo -= BLOCK_SIZE)
@@ -696,12 +702,20 @@ renderCUDA_bw_score(
 				done = true;
 				continue;
 			}
-			blending_weight_score[collected_id[j]] += alpha * T; // blending weight
+			atomicAdd(&(blending_weight_score[collected_id[j]]), alpha * T); // blending weight
+			atomicAdd(&(gaussians_count[collected_id[j]]), 1);
 
 
 			// Eq. (3) from 3D Gaussian splatting paper.
 			for (int ch = 0; ch < CHANNELS; ch++)
 				C[ch] += features[collected_id[j] * CHANNELS + ch] * alpha * T;
+
+			if (weight_max < alpha * T)
+			{
+				weight_max = alpha * T;
+				idx_max = collected_id[j];
+				flag_update = 1;
+			}
 
 			T = test_T;
 
@@ -709,6 +723,11 @@ renderCUDA_bw_score(
 			// pixel.
 			last_contributor = contributor;
 		}
+	}
+
+	if (flag_update == 1)
+	{
+		atomicAdd(&(accum_max_count[idx_max]), 1);
 	}
 
 	// All threads that treat valid pixel write out their final
@@ -733,6 +752,8 @@ void FORWARD::bw_score_gaussian(
 	float* final_T,
 	uint32_t* n_contrib,
 	const float* bg_color,
+	int* gaussians_count,
+	int* accum_max_count,
 	float* blending_weight_score,
 	float* out_color)
 {
@@ -747,6 +768,8 @@ void FORWARD::bw_score_gaussian(
 		n_contrib,
 		bg_color,
 		out_color,
+		gaussians_count,
+		accum_max_count,
 		blending_weight_score);
 }
 

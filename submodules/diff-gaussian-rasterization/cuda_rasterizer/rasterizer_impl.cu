@@ -602,6 +602,8 @@ int CudaRasterizer::Rasterizer::forwardBWScore(
 	const float tan_fovx, float tan_fovy,
 	const bool prefiltered,
 	float* out_color,
+	int* gaussians_count,
+	int* accum_max_count,
 	float* blending_weight_score,
 	int* radii,
 	bool debug)
@@ -717,6 +719,8 @@ int CudaRasterizer::Rasterizer::forwardBWScore(
 		imgState.accum_alpha,
 		imgState.n_contrib,
 		background,
+		gaussians_count,
+		accum_max_count,
 		blending_weight_score,
 		out_color), debug)
 

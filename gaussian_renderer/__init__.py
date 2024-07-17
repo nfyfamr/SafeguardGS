@@ -99,7 +99,7 @@ def render(viewpoint_camera, pc : GaussianModel, pipe, bg_color : torch.Tensor, 
         scales = scales,
         rotations = rotations,
         cov3D_precomp = cov3D_precomp)
-    rendered_image, radii, gaussians_count, important_score = render_rst
+    rendered_image, radii, gaussians_count, accum_max_count, important_score = render_rst
 
     # Those Gaussians that were frustum culled or had a radius of 0 were not visible.
     # They will be excluded from value updates used in the splitting criteria.
@@ -108,4 +108,5 @@ def render(viewpoint_camera, pc : GaussianModel, pipe, bg_color : torch.Tensor, 
             "visibility_filter" : radii > 0,
             "radii": radii,
             "gaussians_count": gaussians_count,
-            "important_score": important_score,}
+            "important_score": important_score,
+            "area_max": accum_max_count,}

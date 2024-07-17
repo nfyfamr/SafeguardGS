@@ -79,7 +79,7 @@ class _RasterizeGaussians(torch.autograd.Function):
             raster_settings.debug
         )
 
-        gaussians_count, important_score = None, None
+        gaussians_count, accum_max_count, important_score = None, None, None
 
         # Invoke C++/CUDA rasterizer
         if raster_settings.debug:
@@ -88,7 +88,7 @@ class _RasterizeGaussians(torch.autograd.Function):
                 if raster_settings.f_count is not None:
                     num_rendered, color, radii, geomBuffer, binningBuffer, imgBuffer, gaussians_count, important_score = _C.count_gaussians(*args)
                 elif raster_settings.bw_score is not None:
-                    num_rendered, color, radii, geomBuffer, binningBuffer, imgBuffer, important_score = _C.bw_score_gaussians(*args)
+                    num_rendered, color, radii, geomBuffer, binningBuffer, imgBuffer, gaussians_count, accum_max_count, important_score = _C.bw_score_gaussians(*args)
                 elif raster_settings.mw_score is not None:
                     num_rendered, color, radii, geomBuffer, binningBuffer, imgBuffer, important_score = _C.mw_score_gaussians(*args)
                 elif (raster_settings.safeguard_gs_topk is not None) and (raster_settings.safeguard_gs_score_function & 0xf0 == 0):
@@ -110,7 +110,7 @@ class _RasterizeGaussians(torch.autograd.Function):
             if raster_settings.f_count is not None:
                 num_rendered, color, radii, geomBuffer, binningBuffer, imgBuffer, gaussians_count, important_score = _C.count_gaussians(*args)
             elif raster_settings.bw_score is not None:
-                num_rendered, color, radii, geomBuffer, binningBuffer, imgBuffer, important_score = _C.bw_score_gaussians(*args)
+                num_rendered, color, radii, geomBuffer, binningBuffer, imgBuffer, gaussians_count, accum_max_count, important_score = _C.bw_score_gaussians(*args)
             elif raster_settings.mw_score is not None:
                 num_rendered, color, radii, geomBuffer, binningBuffer, imgBuffer, important_score = _C.mw_score_gaussians(*args)
             elif (raster_settings.safeguard_gs_topk is not None) and (raster_settings.safeguard_gs_score_function & 0xf0 == 0):
@@ -129,7 +129,7 @@ class _RasterizeGaussians(torch.autograd.Function):
         ctx.raster_settings = raster_settings
         ctx.num_rendered = num_rendered
         ctx.save_for_backward(colors_precomp, means3D, scales, rotations, cov3Ds_precomp, radii, sh, geomBuffer, binningBuffer, imgBuffer)
-        return color, radii, gaussians_count, important_score
+        return color, radii, gaussians_count, accum_max_count, important_score
 
     @staticmethod
     def backward(ctx, grad_out_color, *_):

@@ -83,6 +83,7 @@ Each pruning method has specific arguments, see [arguments/\_\_init__.py](argume
   ```shell
   --mini_splatting_prune_iterations 15000
   --mini_splatting_preserving_ratio 0.1
+  --mini_splatting_imp_metric indoor
   ```
   #### --prune_method rad_splat
   ```shell

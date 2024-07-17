@@ -132,6 +132,8 @@ namespace CudaRasterizer
 			const float tan_fovx, float tan_fovy,
 			const bool prefiltered,
 			float* out_color,
+			int* gaussians_count,
+			int* accum_max_count,
 			float* important_score,
 			int* radii = nullptr,
 			bool debug = false);

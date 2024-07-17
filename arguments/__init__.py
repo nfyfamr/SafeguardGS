@@ -116,6 +116,7 @@ class OptimizationParams(ParamGroup):
         self.mini_splatting_prune_iterations = [15_000, 20_000]
         self.mini_splatting_preserving_ratio = 0.1
         self.mini_splatting_deterministic_prune = True # if False, use important score as probability distribution for sampling as the Mini-Splatting paper.
+        self.mini_splatting_imp_metric = 'indoor'
         ### rad_splat
         self.rad_splat_prune_threshold = 0.01 # 0.25 for light-weight model
         self.rad_splat_prune_iterations = [16_000, 24_000]

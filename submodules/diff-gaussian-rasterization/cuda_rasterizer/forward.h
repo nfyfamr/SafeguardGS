@@ -87,6 +87,8 @@ namespace FORWARD
 		float* final_T,
 		uint32_t* n_contrib,
 		const float* bg_color,
+		int* gaussians_count,
+		int* accum_max_count,
 		float* blending_weight_score,
 		float* out_color);
 

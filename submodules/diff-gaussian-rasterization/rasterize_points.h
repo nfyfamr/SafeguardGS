@@ -89,7 +89,7 @@ CountGaussiansCUDA(
 	const bool debug);
 
 
-std::tuple<int, torch::Tensor, torch::Tensor, torch::Tensor, torch::Tensor, torch::Tensor, torch::Tensor>
+std::tuple<int, torch::Tensor, torch::Tensor, torch::Tensor, torch::Tensor, torch::Tensor, torch::Tensor, torch::Tensor, torch::Tensor>
 BlendingWeightGaussiansCUDA(
 	const torch::Tensor& background,
 	const torch::Tensor& means3D,

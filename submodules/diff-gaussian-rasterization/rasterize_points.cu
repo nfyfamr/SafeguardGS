@@ -304,7 +304,7 @@ CountGaussiansCUDA(
   return std::make_tuple(rendered, out_color, radii, geomBuffer, binningBuffer, imgBuffer, gaussians_count, important_score);
 }
 
-std::tuple<int, torch::Tensor, torch::Tensor, torch::Tensor, torch::Tensor, torch::Tensor, torch::Tensor>
+std::tuple<int, torch::Tensor, torch::Tensor, torch::Tensor, torch::Tensor, torch::Tensor, torch::Tensor, torch::Tensor, torch::Tensor>
 BlendingWeightGaussiansCUDA(
 	const torch::Tensor& background,
 	const torch::Tensor& means3D,
@@ -349,6 +349,8 @@ BlendingWeightGaussiansCUDA(
   std::function<char*(size_t)> imgFunc = resizeFunctional(imgBuffer);
 
   // blending_weight_score
+  torch::Tensor gaussians_count = torch::full({P}, 0, int_opts);
+  torch::Tensor accum_max_count = torch::full({P}, 0, int_opts);
   torch::Tensor blending_weight_score = torch::full({P}, 0.0, float_opts);
 
   int rendered = 0;
@@ -382,11 +384,13 @@ BlendingWeightGaussiansCUDA(
 		tan_fovy,
 		prefiltered,
 		out_color.contiguous().data<float>(),
+		gaussians_count.contiguous().data<int>(),
+		accum_max_count.contiguous().data<int>(),
 		blending_weight_score.contiguous().data<float>(),
 		radii.contiguous().data<int>(),
 		debug);
   }
-  return std::make_tuple(rendered, out_color, radii, geomBuffer, binningBuffer, imgBuffer, blending_weight_score);
+  return std::make_tuple(rendered, out_color, radii, geomBuffer, binningBuffer, imgBuffer, gaussians_count, accum_max_count, blending_weight_score);
 }
 
 std::tuple<int, torch::Tensor, torch::Tensor, torch::Tensor, torch::Tensor, torch::Tensor, torch::Tensor>
