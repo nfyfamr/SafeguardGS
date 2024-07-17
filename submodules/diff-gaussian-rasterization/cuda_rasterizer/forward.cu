@@ -467,7 +467,7 @@ renderCUDA_count(
 	uint32_t* __restrict__ n_contrib,
 	const float* __restrict__ bg_color,
 	float* __restrict__ out_color,
-	int* __restrict__ gaussian_count,
+	int* __restrict__ gaussians_count,
 	float* __restrict__ important_score)
 {
 	// Identify current tile and associated min/max pixel range.
@@ -547,8 +547,8 @@ renderCUDA_count(
 				done = true;
 				continue;
 			}
-			gaussian_count[collected_id[j]]++; // add count 
-			important_score[collected_id[j]] += con_o.w; // opacity
+			atomicAdd(&(gaussians_count[collected_id[j]]), 1); // add count 
+			atomicAdd(&(important_score[collected_id[j]]), con_o.w); // opacity
 
 
 			// Eq. (3) from 3D Gaussian splatting paper.
@@ -773,6 +773,18 @@ void FORWARD::bw_score_gaussian(
 		blending_weight_score);
 }
 
+__device__ float atomicMax(float* address, float val)
+{
+    int* address_as_i = (int*)address;
+    int old = *address_as_i, assumed;
+    do {
+        assumed = old;
+        old = atomicCAS(address_as_i, assumed,
+            __float_as_int(fmaxf(val, __int_as_float(assumed))));
+    } while (assumed != old);
+    return __int_as_float(old);
+}
+
 template <uint32_t CHANNELS>
 __global__ void __launch_bounds__(BLOCK_X * BLOCK_Y)
 renderCUDA_mw_score(
@@ -865,8 +877,7 @@ renderCUDA_mw_score(
 				done = true;
 				continue;
 			}
-			max_weight_score[collected_id[j]] = max(max_weight_score[collected_id[j]], alpha * T); // max weight
-
+			atomicMax(&(max_weight_score[collected_id[j]]), alpha * T) // max weight
 
 			// Eq. (3) from 3D Gaussian splatting paper.
 			for (int ch = 0; ch < CHANNELS; ch++)
