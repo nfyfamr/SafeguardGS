@@ -877,7 +877,7 @@ renderCUDA_mw_score(
 				done = true;
 				continue;
 			}
-			atomicMax(&(max_weight_score[collected_id[j]]), alpha * T) // max weight
+			atomicMax(&(max_weight_score[collected_id[j]]), alpha * T); // max weight
 
 			// Eq. (3) from 3D Gaussian splatting paper.
 			for (int ch = 0; ch < CHANNELS; ch++)
