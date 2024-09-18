@@ -126,9 +126,9 @@ class OptimizationParams(ParamGroup):
         ### safeguard_gs
         self.safeguard_gs_purne_topk = 10
         self.safeguard_gs_prune_iterations = [15_000]
-        self.safeguard_gs_score_function = 0x01
+        self.safeguard_gs_score_function = 0x24
         # Function IDs are defined using bitmasking. For example, `safeguard_gs_score_function=0x24`, which is SafeguardGS' choice, outputs `L1_color_error * alpha * transmittance`.
-        # First 2 bytes:
+        # First byte:
         #   0x00. score = 1
         #   0x01. score = opacity
         #   0x02. score = alpha
@@ -139,7 +139,7 @@ class OptimizationParams(ParamGroup):
         #   0x07. score = dist error * alpha
         #   0x08. score = dist error * opacity * transmittance
         #   0x09. score = dist error * alpha * transmittance
-        # Last 2 bytes:
+        # Last byte:
         #   0x10. score = color error (Cosine similarity)
         #   0x20. score = color error (Manhattan distance)
         #   0x30. score = exp color error (Manhattan distance)

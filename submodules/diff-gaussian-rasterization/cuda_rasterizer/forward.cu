@@ -931,7 +931,7 @@ void FORWARD::mw_score_gaussian(
 }
 
 // Function IDs are defined using bitmasking. For example, `safeguard_gs_score_function=0x24`, which is SafeguardGS' choice, outputs `L1_color_error * alpha * transmittance`.
-// First 2 bytes:
+// First byte:
 //   0x00. score = 1
 //   0x01. score = opacity
 //   0x02. score = alpha
@@ -942,11 +942,11 @@ void FORWARD::mw_score_gaussian(
 //   0x07. score = dist error * alpha
 //   0x08. score = dist error * opacity * transmittance
 //   0x09. score = dist error * alpha * transmittance
-// Last 2 bytes:
+// Last byte:
 //   0x10. score = color error (Cosine similarity)
 //   0x20. score = color error (Manhattan distance)
 //   0x30. score = exp color error (Manhattan distance)
-// Output: score of [0, 1] for a Gaussian primitive with respect to a ray
+// Output: a score in the range of [0, 1] for a Gaussian primitive with respect to a ray
 template<uint32_t C>
 __device__ float compute_score(
 	int func_id,
@@ -999,9 +999,20 @@ __device__ float compute_score(
 		case 0x00:
 			return score;
 		case 0x10:
+			float gt_color_len = 0;
+			float prim_color_len = 0;
+			
+			for (int ch = 0; ch < C; ch++)
+			{
+				gt_color_len += gt_color[ch] * gt_color[ch];
+				prim_color_len += prim_color[ch] * prim_color[ch];
+			}
+			gt_color_len = sqrt(gt_color_len);
+			prim_color_len = sqrt(prim_color_len);
+
 			for (int ch = 0; ch < C; ch++)
 				color_cos_sim += gt_color[ch] * prim_color[ch];
-			return score * color_cos_sim;
+			return score * color_cos_sim / (gt_color_len * prim_color_len);
 		case 0x20:
 			for (int ch = 0; ch < C; ch++)
 				color_dist_err += abs(gt_color[ch] - prim_color[ch]);
@@ -1228,16 +1239,8 @@ renderCUDA_topk_color(
 	uint32_t last_contributor = 0;
 	float C[CHANNELS] = { 0 };
 	float gt_color[CHANNELS] = { 0 };
-	float gt_color_len = 0.0f;
 	for (int ch = 0; ch < CHANNELS; ch++)
-	{
 		gt_color[ch] = image_gt[ch * H * W + pix_id];
-		gt_color_len += gt_color[ch] * gt_color[ch];
-	}
-	gt_color_len = sqrt(gt_color_len);
-	if (gt_color_len > 0)
-		for (int ch = 0; ch < CHANNELS; ch++)
-			gt_color[ch] /= gt_color_len;
 
 	// Iterate over batches until all done or range is complete
 	for (int i = 0; i < rounds; i++, toDo -= BLOCK_SIZE)
@@ -1289,18 +1292,11 @@ renderCUDA_topk_color(
 
 			// Eq. (3) from 3D Gaussian splatting paper.
 			float prim_color[CHANNELS] = { 0 };
-			float prim_color_len = 0.0f;
 			for (int ch = 0; ch < CHANNELS; ch++)
 			{
 				C[ch] += features[collected_id[j] * CHANNELS + ch] * alpha * T;
-
 				prim_color[ch] = features[collected_id[j] * CHANNELS + ch];
-				prim_color_len += prim_color[ch] * prim_color[ch];
 			}
-			prim_color_len = sqrt(prim_color_len);
-			if (prim_color_len > 0)
-				for (int ch = 0; ch < CHANNELS; ch++)
-					prim_color[ch] /= prim_color_len;
 
 			uint64_t block_id = block.group_index().y * horizontal_blocks + block.group_index().x;
 			// Use value range of [0, 65535].
