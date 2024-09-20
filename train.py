@@ -232,33 +232,33 @@ if __name__ == "__main__":
     if run.sweep_id:
         args.model_path += f"{wandb.config.prune_method}/{wandb.config.scene}"
         args.source_path += wandb.config.scene
-        if getattr(wandb.config, 'prune_iterations', None): setattr(args, f'{wandb.config.prune_method}_prune_iterations', wandb.config.prune_iterations)
+        if getattr(wandb.config, 'prune_iterations', None): 
+            setattr(args, f'{wandb.config.prune_method}_prune_iterations', wandb.config.prune_iterations)
+            args.model_path += '/prn_' + str('_'.join(map(str, wandb.config.prune_iterations)))
         if getattr(wandb.config, 'prune_method', None): args.prune_method = wandb.config.prune_method
         ### compact_3dgs
         if getattr(wandb.config, 'compact_3dgs_mask_lr', None): args.compact_3dgs_mask_lr = wandb.config.compact_3dgs_mask_lr
         if getattr(wandb.config, 'compact_3dgs_prune_iter', None): args.compact_3dgs_prune_iter = wandb.config.compact_3dgs_prune_iter
         if getattr(wandb.config, 'compact_3dgs_lambda_mask', None): args.compact_3dgs_lambda_mask = wandb.config.compact_3dgs_lambda_mask
         ### light_gaussian
-        if getattr(wandb.config, 'light_gaussian_prune_iterations', None): args.light_gaussian_prune_iterations = wandb.config.light_gaussian_prune_iterations
         if getattr(wandb.config, 'light_gaussian_prune_percent', None): args.light_gaussian_prune_percent = wandb.config.light_gaussian_prune_percent
         if getattr(wandb.config, 'light_gaussian_prune_decay', None): args.light_gaussian_prune_decay = wandb.config.light_gaussian_prune_decay
         if getattr(wandb.config, 'light_gaussian_v_pow', None): args.light_gaussian_v_pow = wandb.config.light_gaussian_v_pow
         ### random
-        if getattr(wandb.config, 'random_prune_iterations', None): args.random_prune_iterations = wandb.config.random_prune_iterations
         if getattr(wandb.config, 'random_prune_ratio', None): args.random_prune_ratio = wandb.config.random_prune_ratio
         ### mini_splatting
-        if getattr(wandb.config, 'mini_splatting_prune_iterations', None): args.mini_splatting_prune_iterations = wandb.config.mini_splatting_prune_iterations
         if getattr(wandb.config, 'mini_splatting_preserving_ratio', None): args.mini_splatting_preserving_ratio = wandb.config.mini_splatting_preserving_ratio
         ### rad_splat
         if getattr(wandb.config, 'rad_splat_prune_threshold', None): args.rad_splat_prune_threshold = wandb.config.rad_splat_prune_threshold
-        if getattr(wandb.config, 'rad_splat_prune_iterations', None): args.rad_splat_prune_iterations = wandb.config.rad_splat_prune_iterations
         ### efficient_gs
-        if getattr(wandb.config, 'efficient_gs_prune_iterations', None): args.efficient_gs_prune_iterations = wandb.config.efficient_gs_prune_iterations
         if getattr(wandb.config, 'efficient_gs_prune_topk', None): args.efficient_gs_prune_topk = wandb.config.efficient_gs_prune_topk
         ### safeguard_gs
-        if getattr(wandb.config, 'safeguard_gs_purne_topk', None): args.safeguard_gs_purne_topk = wandb.config.safeguard_gs_purne_topk
-        if getattr(wandb.config, 'safeguard_gs_prune_iterations', None): args.safeguard_gs_prune_iterations = wandb.config.safeguard_gs_prune_iterations
-        if getattr(wandb.config, 'safeguard_gs_score_function', None): args.safeguard_gs_score_function = wandb.config.safeguard_gs_score_function
+        if getattr(wandb.config, 'safeguard_gs_purne_topk', None):
+            args.safeguard_gs_purne_topk = wandb.config.safeguard_gs_purne_topk
+            args.model_path += '/top_' + str(args.safeguard_gs_purne_topk)
+        if getattr(wandb.config, 'safeguard_gs_score_function', None):
+            args.safeguard_gs_score_function = wandb.config.safeguard_gs_score_function
+            args.model_path += '/f_' + str(args.safeguard_gs_score_function)
         if getattr(wandb.config, 'safeguard_gs_p_dist_activation_coef', None): args.safeguard_gs_p_dist_activation_coef = wandb.config.safeguard_gs_p_dist_activation_coef
         if getattr(wandb.config, 'safeguard_gs_c_dist_activation_coef', None): args.safeguard_gs_c_dist_activation_coef = wandb.config.safeguard_gs_c_dist_activation_coef
         if getattr(wandb.config, 'n_split', None): args.n_split = wandb.config.n_split

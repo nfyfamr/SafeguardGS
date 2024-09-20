@@ -1,0 +1,29 @@
+# wandb sweep configuration
+program: train.py
+method: grid
+metric:
+  goal: minimize
+  name: test.psnr
+parameters:
+  scene:
+    values: ["mipnerf360/bicycle"]
+  prune_method:
+    value: safeguard_gs
+  prune_iterations:
+    value: [20000]
+  safeguard_gs_score_function:
+    values: [0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x10, 
+              0x11, 0x12, 0x13, 0x14, 0x15, 0x16, 0x17, 0x18, 0x19, 0x20, 
+              0x21, 0x22, 0x23, 0x24, 0x25, 0x26, 0x27, 0x28, 0x29, 0x30, 
+              0x31, 0x32, 0x33, 0x34, 0x35, 0x36, 0x37, 0x38, 0x39]
+  safeguard_gs_purne_topk:
+    values: [1, 2, 3, 4, 5, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100]
+command:
+- ${env}
+- python
+- ${program}
+- "-s"
+- "./data/"
+- "-m"
+- "output/benchmark/"
+- "--eval"
