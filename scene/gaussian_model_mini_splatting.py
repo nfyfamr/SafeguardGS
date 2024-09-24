@@ -1,4 +1,4 @@
-# This is our implementation of Mini-Splatting (https://github.com/fatPeter/mini-splatting)
+# Codes from Mini-Splatting paper (https://github.com/fatPeter/mini-splatting)
 
 import torch
 from scene.gaussian_model import GaussianModel

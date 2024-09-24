@@ -1,0 +1,26 @@
+# wandb sweep configuration
+program: train.py
+method: grid
+metric:
+  goal: minimize
+  name: test.psnr
+parameters:
+  scene:
+    values: ["mipnerf360/bicycle"]
+  prune_method:
+    value: compact_3dgs
+  compact_3dgs_mask_lr:
+    value: 0.01
+  compact_3dgs_lambda_mask:
+    value: 0.0005
+  compact_3dgs_prune_iter:
+    value: 1_000
+command:
+- ${env}
+- python
+- ${program}
+- "-s"
+- "./data/"
+- "-m"
+- "output/benchmark/"
+- "--eval"

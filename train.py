@@ -241,17 +241,30 @@ if __name__ == "__main__":
         if getattr(wandb.config, 'compact_3dgs_prune_iter', None): args.compact_3dgs_prune_iter = wandb.config.compact_3dgs_prune_iter
         if getattr(wandb.config, 'compact_3dgs_lambda_mask', None): args.compact_3dgs_lambda_mask = wandb.config.compact_3dgs_lambda_mask
         ### light_gaussian
-        if getattr(wandb.config, 'light_gaussian_prune_percent', None): args.light_gaussian_prune_percent = wandb.config.light_gaussian_prune_percent
+        if getattr(wandb.config, 'light_gaussian_prune_percent', None): 
+            args.light_gaussian_prune_percent = wandb.config.light_gaussian_prune_percent
+            args.model_path += '/pratio_' + str(args.light_gaussian_prune_percent)
         if getattr(wandb.config, 'light_gaussian_prune_decay', None): args.light_gaussian_prune_decay = wandb.config.light_gaussian_prune_decay
         if getattr(wandb.config, 'light_gaussian_v_pow', None): args.light_gaussian_v_pow = wandb.config.light_gaussian_v_pow
         ### random
-        if getattr(wandb.config, 'random_prune_ratio', None): args.random_prune_ratio = wandb.config.random_prune_ratio
+        if getattr(wandb.config, 'random_prune_ratio', None): 
+            args.random_prune_ratio = wandb.config.random_prune_ratio
+            args.model_path += '/pratio_' + str(args.random_prune_ratio)
         ### mini_splatting
-        if getattr(wandb.config, 'mini_splatting_preserving_ratio', None): args.mini_splatting_preserving_ratio = wandb.config.mini_splatting_preserving_ratio
+        if getattr(wandb.config, 'mini_splatting_preserving_ratio', None): 
+            args.mini_splatting_preserving_ratio = wandb.config.mini_splatting_preserving_ratio
+            args.model_path += '/pratio_' + str(args.mini_splatting_preserving_ratio)
+        if getattr(wandb.config, 'mini_splatting_imp_metric', None) is None:
+            args.mini_splatting_imp_metric = 'outdoor' if wandb.config.scene.split('/')[-1] in ['train', 'truck', 'bicycle', 'flowers', 'garden', 'stump', 'treehill'] else 'indoor'
+            print(args.mini_splatting_imp_metric)
         ### rad_splat
-        if getattr(wandb.config, 'rad_splat_prune_threshold', None): args.rad_splat_prune_threshold = wandb.config.rad_splat_prune_threshold
+        if getattr(wandb.config, 'rad_splat_prune_threshold', None): 
+            args.rad_splat_prune_threshold = wandb.config.rad_splat_prune_threshold
+            args.model_path += '/pth_' + str(args.rad_splat_prune_threshold)
         ### efficient_gs
-        if getattr(wandb.config, 'efficient_gs_prune_topk', None): args.efficient_gs_prune_topk = wandb.config.efficient_gs_prune_topk
+        if getattr(wandb.config, 'efficient_gs_prune_topk', None): 
+            args.efficient_gs_prune_topk = wandb.config.efficient_gs_prune_topk
+            args.model_path += '/topk_' + str(args.efficient_gs_prune_topk)
         ### safeguard_gs
         if getattr(wandb.config, 'safeguard_gs_purne_topk', None):
             args.safeguard_gs_purne_topk = wandb.config.safeguard_gs_purne_topk
