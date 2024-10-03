@@ -6,7 +6,7 @@ metric:
   name: test.psnr
 parameters:
   scene:
-    values: ["mipnerf360/bicycle"]
+    values: ["nerf_synthetic/chair", "nerf_synthetic/drums", "nerf_synthetic/ficus", "nerf_synthetic/hotdog", "nerf_synthetic/lego", "nerf_synthetic/materials", "nerf_synthetic/mic", "nerf_synthetic/ship", "mipnerf360/bicycle", "mipnerf360/bonsai", "mipnerf360/counter", "mipnerf360/flowers", "mipnerf360/garden", "mipnerf360/kitchen", "mipnerf360/room", "mipnerf360/stump", "mipnerf360/treehill", "db/drjohnson", "db/playroom", "tandt/train", "tandt/truck"]
   prune_method:
     value: efficient_gs
   prune_iterations:
