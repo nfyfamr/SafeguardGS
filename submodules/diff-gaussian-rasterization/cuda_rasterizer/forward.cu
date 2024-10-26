@@ -942,10 +942,18 @@ void FORWARD::mw_score_gaussian(
 //   0x07. score = dist error * alpha
 //   0x08. score = dist error * opacity * transmittance
 //   0x09. score = dist error * alpha * transmittance
+//   0x0a. score = opacity + transmittance
+//   0x0b. score = alpha + transmittance
+//   0x0c. score = dist error + opacity
+//   0x0d. score = dist error + alpha
+//   0x0e. score = dist error + opacity + transmittance
+//   0x0f. score = dist error + alpha + transmittance
 // Last byte:
-//   0x10. score = color error (Cosine similarity)
-//   0x20. score = color error (Manhattan distance)
-//   0x30. score = exp color error (Manhattan distance)
+//   0x10. score *= color error (Cosine similarity)
+//   0x20. score *= color error (Manhattan distance)
+//   0x30. score *= exp color error (Manhattan distance)
+//   0x40. score += color error (Manhattan distance)
+//   0x50. score += exp color error (Manhattan distance)
 // Output: a score in the range of [0, 1] for a Gaussian primitive with respect to a ray
 template<uint32_t C>
 __device__ float compute_score(
@@ -992,6 +1000,22 @@ __device__ float compute_score(
 		case 0x09:
 			activated_dist_err = exp(-1.0f * (p_dist_activation_coef * sqrt(pix_dist->x * pix_dist->x + pix_dist->y * pix_dist->y)));
 			score = activated_dist_err * alpha * T; break;
+		case 0x0a:
+			score = opacity + T; break;
+		case 0x0b:
+			score = alpha + T; break;
+		case 0x0c:
+			activated_dist_err = exp(-1.0f * (p_dist_activation_coef * sqrt(pix_dist->x * pix_dist->x + pix_dist->y * pix_dist->y)));
+			score = activated_dist_err + opacity; break;
+		case 0x0d:
+			activated_dist_err = exp(-1.0f * (p_dist_activation_coef * sqrt(pix_dist->x * pix_dist->x + pix_dist->y * pix_dist->y)));
+			score = activated_dist_err + alpha; break;
+		case 0x0e:
+			activated_dist_err = exp(-1.0f * (p_dist_activation_coef * sqrt(pix_dist->x * pix_dist->x + pix_dist->y * pix_dist->y)));
+			score = activated_dist_err + opacity + T; break;
+		case 0x0f:
+			activated_dist_err = exp(-1.0f * (p_dist_activation_coef * sqrt(pix_dist->x * pix_dist->x + pix_dist->y * pix_dist->y)));
+			score = activated_dist_err + alpha + T; break;
 	}
 
 	switch (func_id & 0xf0)
@@ -1023,6 +1047,16 @@ __device__ float compute_score(
 				color_dist_err += abs(gt_color[ch] - prim_color[ch]);
 			activated_color_dist_err = exp(-1.0f * c_dist_activation_coef * color_dist_err / C);
 			return score * activated_color_dist_err;
+		case 0x40:
+			for (int ch = 0; ch < C; ch++)
+				color_dist_err += abs(gt_color[ch] - prim_color[ch]);
+			activated_color_dist_err = 1 - color_dist_err / C;
+			return score + activated_color_dist_err;
+		case 0x50:
+			for (int ch = 0; ch < C; ch++)
+				color_dist_err += abs(gt_color[ch] - prim_color[ch]);
+			activated_color_dist_err = exp(-1.0f * c_dist_activation_coef * color_dist_err / C);
+			return score + activated_color_dist_err;
 	}
 }
 

@@ -139,10 +139,18 @@ class OptimizationParams(ParamGroup):
         #   0x07. score = dist error * alpha
         #   0x08. score = dist error * opacity * transmittance
         #   0x09. score = dist error * alpha * transmittance
+        #   0x0a. score = opacity + transmittance
+        #   0x0b. score = alpha + transmittance
+        #   0x0c. score = dist error + opacity
+        #   0x0d. score = dist error + alpha
+        #   0x0e. score = dist error + opacity + transmittance
+        #   0x0f. score = dist error + alpha + transmittance
         # Last byte:
-        #   0x10. score = color error (Cosine similarity)
-        #   0x20. score = color error (Manhattan distance)
-        #   0x30. score = exp color error (Manhattan distance)
+        #   0x10. score *= color error (Cosine similarity)
+        #   0x20. score *= color error (Manhattan distance)
+        #   0x30. score *= exp color error (Manhattan distance)
+        #   0x40. score += color error (Manhattan distance)
+        #   0x50. score += exp color error (Manhattan distance)
         self.safeguard_gs_p_dist_activation_coef = 1.0
         self.safeguard_gs_c_dist_activation_coef = 1.0
         super().__init__(parser, "Optimization Parameters")
