@@ -1020,6 +1020,8 @@ int CudaRasterizer::Rasterizer::forwardTopK(
 	size_t binning_chunk_size_for_opacity = required<BinningState>(num_rendered);
 	char* binning_chunkptr_for_opacity = binningBuffer(binning_chunk_size_for_opacity);
 	BinningState binningState_for_opacity = BinningState::fromChunk(binning_chunkptr_for_opacity, num_rendered);
+	CHECK_CUDA(cudaMemset(binningState_for_opacity.point_list_keys_unsorted, -1, num_rendered * sizeof(uint64_t)), debug);
+	CHECK_CUDA(cudaMemset(binningState_for_opacity.point_list_unsorted, 0, num_rendered * sizeof(uint32_t)), debug);
 
 	// Let each tile blend its range of Gaussians independently in parallel
 	const float* feature_ptr = colors_precomp != nullptr ? colors_precomp : geomState.rgb;
@@ -1194,6 +1196,8 @@ int CudaRasterizer::Rasterizer::forwardTopKColor(
 	size_t binning_chunk_size_for_opacity = required<BinningState>(num_rendered);
 	char* binning_chunkptr_for_opacity = binningBuffer(binning_chunk_size_for_opacity);
 	BinningState binningState_for_opacity = BinningState::fromChunk(binning_chunkptr_for_opacity, num_rendered);
+	CHECK_CUDA(cudaMemset(binningState_for_opacity.point_list_keys_unsorted, -1, num_rendered * sizeof(uint64_t)), debug);
+	CHECK_CUDA(cudaMemset(binningState_for_opacity.point_list_unsorted, 0, num_rendered * sizeof(uint32_t)), debug);
 
 	// Let each tile blend its range of Gaussians independently in parallel
 	const float* feature_ptr = colors_precomp != nullptr ? colors_precomp : geomState.rgb;
